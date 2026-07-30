@@ -1,0 +1,53 @@
+<h1 class="display">Checkout</h1>
+
+@if (loading()) {
+  <div class="spinner"></div>
+} @else if (!cart() || cart()!.items.length === 0) {
+  <div class="empty-state">
+    <p class="display" style="font-size: 1.8rem;">Il carrello è vuoto</p>
+    <a routerLink="/" class="btn btn-primary">Vai al catalogo</a>
+  </div>
+} @else {
+  <div class="checkout-layout">
+    <form class="panel checkout-form" [formGroup]="form" (ngSubmit)="submit()">
+      @if (errorMessage()) {
+        <div class="alert alert-error">{{ errorMessage() }}</div>
+      }
+
+      <div class="field">
+        <label for="shippingAddress">Indirizzo di spedizione</label>
+        <textarea id="shippingAddress" formControlName="shippingAddress" rows="3"></textarea>
+        @if (form.controls.shippingAddress.invalid && form.controls.shippingAddress.touched) {
+          <span class="error-text">L'indirizzo di spedizione è obbligatorio.</span>
+        }
+      </div>
+
+      <div class="field">
+        <label for="paymentMethod">Metodo di pagamento</label>
+        <select id="paymentMethod" formControlName="paymentMethod">
+          @for (m of paymentMethods; track m) {
+            <option [value]="m">{{ m }}</option>
+          }
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="submitting()">
+        {{ submitting() ? 'Invio ordine…' : 'Conferma ordine' }}
+      </button>
+    </form>
+
+    <aside class="panel checkout-summary">
+      <h2>Il tuo ordine</h2>
+      @for (item of cart()!.items; track item.id) {
+        <div class="summary-item">
+          <span>{{ item.quantity }} × {{ item.product.name }}</span>
+          <span>{{ item.subTotal | currency: 'EUR' }}</span>
+        </div>
+      }
+      <div class="summary-total">
+        <span>Totale</span>
+        <strong>{{ cart()!.totalCartPrice | currency: 'EUR' }}</strong>
+      </div>
+    </aside>
+  </div>
+}

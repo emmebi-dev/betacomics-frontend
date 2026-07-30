@@ -1,0 +1,66 @@
+<div class="admin-header">
+  <h1 class="display">Gestione prodotti</h1>
+  <div class="new-buttons">
+    <a routerLink="/admin/products/new/comic" class="btn btn-sm btn-accent">+ Fumetto</a>
+    <a routerLink="/admin/products/new/actionFigure" class="btn btn-sm btn-accent">+ Action Figure</a>
+    <a routerLink="/admin/products/new/boardGame" class="btn btn-sm btn-accent">+ Board Game</a>
+  </div>
+</div>
+
+@if (loading()) {
+  <div class="spinner"></div>
+} @else if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+} @else if (!page() || page()!.content.length === 0) {
+  <div class="empty-state">
+    <p>Nessun prodotto presente. Creane uno con i pulsanti qui sopra.</p>
+  </div>
+} @else {
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Tipo</th>
+        <th>Prezzo</th>
+        <th>Scorte</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of page()!.content; track product.id) {
+        <tr>
+          <td>{{ product.name }}</td>
+          <td><span class="badge">{{ product.productType }}</span></td>
+          <td>{{ product.price | currency: 'EUR' }}</td>
+          <td>{{ product.stockQuantity }}</td>
+          <td class="admin-table__actions">
+            <a class="btn btn-sm" [routerLink]="['/admin/products/edit', routeType(product.productType), product.id]">
+              Modifica
+            </a>
+            <button
+              class="btn btn-sm btn-danger"
+              [disabled]="deletingId() === product.id"
+              (click)="deleteProduct(product)"
+            >
+              Elimina
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (page()!.totalPages > 1) {
+    <div class="pagination">
+      <button class="btn btn-sm" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">‹ Prec</button>
+      <span>Pagina {{ currentPage() + 1 }} di {{ page()!.totalPages }}</span>
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage() + 1 >= page()!.totalPages"
+        (click)="goToPage(currentPage() + 1)"
+      >
+        Succ ›
+      </button>
+    </div>
+  }
+}

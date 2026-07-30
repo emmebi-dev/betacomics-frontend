@@ -1,0 +1,129 @@
+<a routerLink="/admin/products" class="back-link">← Torna alla lista prodotti</a>
+
+<h1 class="display">{{ isEdit() ? 'Modifica' : 'Nuovo' }} — {{ typeLabel() }}</h1>
+
+@if (loading()) {
+  <div class="spinner"></div>
+} @else {
+  <form class="panel form-panel" (submit)="onSubmit($event)">
+    @if (errorMessage()) {
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+    }
+
+    <h2 class="form-section-title">Dati generali</h2>
+    <div class="form-grid" [formGroup]="baseForm">
+      <div class="field field--wide">
+        <label for="name">Nome</label>
+        <input id="name" type="text" formControlName="name" />
+      </div>
+
+      <div class="field field--wide">
+        <label for="description">Descrizione</label>
+        <textarea id="description" formControlName="description" rows="3"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="price">Prezzo (€)</label>
+        <input id="price" type="number" step="0.01" min="0" formControlName="price" />
+      </div>
+
+      <div class="field">
+        <label for="stockQuantity">Quantità in stock</label>
+        <input id="stockQuantity" type="number" min="0" formControlName="stockQuantity" />
+      </div>
+
+      <div class="field">
+        <label for="weight">Peso (kg)</label>
+        <input id="weight" type="number" step="0.01" min="0" formControlName="weight" />
+      </div>
+
+      <div class="field">
+        <label for="releaseDate">Data di uscita</label>
+        <input id="releaseDate" type="date" formControlName="releaseDate" />
+      </div>
+
+      <div class="field field--wide">
+        <label for="imageUrl">URL immagine</label>
+        <input id="imageUrl" type="text" formControlName="imageUrl" placeholder="https://…" />
+      </div>
+    </div>
+
+    @if (type() === 'comic') {
+      <h2 class="form-section-title">Dettagli fumetto</h2>
+      <div class="form-grid" [formGroup]="comicForm">
+        <div class="field">
+          <label for="author">Autore</label>
+          <input id="author" type="text" formControlName="author" />
+        </div>
+        <div class="field">
+          <label for="publisher">Editore</label>
+          <input id="publisher" type="text" formControlName="publisher" />
+        </div>
+        <div class="field">
+          <label for="volumeNumber">Numero volume</label>
+          <input id="volumeNumber" type="number" min="0" formControlName="volumeNumber" />
+        </div>
+        <div class="field">
+          <label for="pages">Pagine</label>
+          <input id="pages" type="number" min="0" formControlName="pages" />
+        </div>
+      </div>
+    }
+
+    @if (type() === 'actionFigure') {
+      <h2 class="form-section-title">Dettagli action figure</h2>
+      <div class="form-grid" [formGroup]="actionFigureForm">
+        <div class="field">
+          <label for="brand">Marca</label>
+          <input id="brand" type="text" formControlName="brand" />
+        </div>
+        <div class="field">
+          <label for="material">Materiale</label>
+          <input id="material" type="text" formControlName="material" />
+        </div>
+        <div class="field">
+          <label for="height">Altezza (cm)</label>
+          <input id="height" type="number" step="0.1" min="0" formControlName="height" />
+        </div>
+        <div class="field">
+          <label for="width">Larghezza (cm)</label>
+          <input id="width" type="number" step="0.1" min="0" formControlName="width" />
+        </div>
+        <div class="field">
+          <label for="depth">Profondità (cm)</label>
+          <input id="depth" type="number" step="0.1" min="0" formControlName="depth" />
+        </div>
+      </div>
+    }
+
+    @if (type() === 'boardGame') {
+      <h2 class="form-section-title">Dettagli board game</h2>
+      <div class="form-grid" [formGroup]="boardGameForm">
+        <div class="field">
+          <label for="brand2">Marca</label>
+          <input id="brand2" type="text" formControlName="brand" />
+        </div>
+        <div class="field">
+          <label for="minPlayers">Giocatori minimi</label>
+          <input id="minPlayers" type="number" min="1" max="20" formControlName="minPlayers" />
+        </div>
+        <div class="field">
+          <label for="maxPlayers">Giocatori massimi</label>
+          <input id="maxPlayers" type="number" min="1" max="20" formControlName="maxPlayers" />
+        </div>
+        <div class="field">
+          <label for="averagePlayTime">Durata media (min)</label>
+          <input id="averagePlayTime" type="number" min="1" formControlName="averagePlayTime" />
+        </div>
+        <div class="field">
+          <label for="recommendedAge">Età consigliata</label>
+          <input id="recommendedAge" type="number" min="0" formControlName="recommendedAge" />
+        </div>
+      </div>
+    }
+
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Salvataggio…' : isEdit() ? 'Salva modifiche' : 'Crea prodotto' }}
+    </button>
+  </form>
+}

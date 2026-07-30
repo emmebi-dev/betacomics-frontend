@@ -1,0 +1,30 @@
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 200;
+  max-width: 320px;
+}
+
+.toast {
+  padding: 12px 16px;
+  border: 3px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-hard-sm);
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--paper);
+  animation: pop-in 0.15s ease-out;
+}
+
+.toast--success { background: #cdeeda; }
+.toast--error { background: #fbdad5; }
+.toast--info { background: #dbe8ff; }
+
+@keyframes pop-in {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

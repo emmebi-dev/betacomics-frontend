@@ -1,0 +1,32 @@
+<header class="navbar">
+  <div class="container navbar__inner">
+    <a routerLink="/" class="navbar__brand display">Betacomics<span class="navbar__dot">.</span></a>
+
+    <nav class="navbar__links">
+      <a routerLink="/" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">Catalogo</a>
+      @if (isAdmin()) {
+        <a routerLink="/admin/products" routerLinkActive="is-active">Prodotti</a>
+        <a routerLink="/admin/orders" routerLinkActive="is-active">Ordini</a>
+      }
+    </nav>
+
+    <div class="navbar__actions">
+      @if (isLoggedIn()) {
+        <a routerLink="/orders" class="navbar__icon-link" routerLinkActive="is-active" title="I miei ordini">Ordini</a>
+        <a routerLink="/profile" class="navbar__icon-link" routerLinkActive="is-active" title="Profilo">
+          {{ currentUser()?.username }}
+        </a>
+        <a routerLink="/cart" class="navbar__cart" routerLinkActive="is-active" title="Carrello">
+          Carrello
+          @if (itemCount() > 0) {
+            <span class="navbar__cart-badge">{{ itemCount() }}</span>
+          }
+        </a>
+        <button class="btn btn-sm btn-ghost" (click)="logout()">Esci</button>
+      } @else {
+        <a routerLink="/cart" class="navbar__cart" routerLinkActive="is-active" title="Carrello">Carrello</a>
+        <a routerLink="/login" class="btn btn-sm btn-primary">Accedi</a>
+      }
+    </div>
+  </div>
+</header>

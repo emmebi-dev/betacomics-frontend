@@ -1,0 +1,72 @@
+<section class="hero">
+  <h1 class="display">Fumetti. Action figure. Board game.<br />Tutto sotto lo stesso tetto.</h1>
+  <p>Sfoglia il catalogo di Betacomics: nuove uscite, edizioni da collezione e giochi da tavolo per ogni serata.</p>
+</section>
+
+<div class="filters">
+  @for (f of filters; track f.value) {
+    <button
+      class="btn btn-sm"
+      [class.btn-accent]="typeFilter() === f.value"
+      (click)="setFilter(f.value)"
+    >
+      {{ f.label }}
+    </button>
+  }
+</div>
+
+@if (loading()) {
+  <div class="spinner"></div>
+} @else if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+} @else if (filteredContent.length === 0) {
+  <div class="empty-state">
+    <p class="display" style="font-size: 1.8rem;">Nessun prodotto trovato</p>
+    <p>Prova a cambiare filtro o torna più tardi.</p>
+  </div>
+} @else {
+  <div class="product-grid">
+    @for (product of filteredContent; track product.id) {
+      <a class="product-card" [routerLink]="['/products', product.id]">
+        <div class="product-card__image">
+          @if (product.imageUrl) {
+            <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
+          } @else {
+            <div class="product-card__placeholder display">{{ product.name.charAt(0) }}</div>
+          }
+          <span class="badge product-card__type">{{ typeLabel(product.productType) }}</span>
+        </div>
+        <div class="product-card__body">
+          <h3>{{ product.name }}</h3>
+          <p class="product-card__price">{{ product.price | currency: 'EUR' }}</p>
+          @if (product.stockQuantity === 0) {
+            <p class="product-card__stock out">Esaurito</p>
+          } @else {
+            <p class="product-card__stock">{{ product.stockQuantity }} disponibili</p>
+          }
+          <button
+            class="btn btn-primary btn-sm btn-block"
+            [disabled]="product.stockQuantity === 0 || addingId() === product.id"
+            (click)="quickAddToCart(product, $event)"
+          >
+            {{ addingId() === product.id ? 'Aggiunta…' : 'Aggiungi al carrello' }}
+          </button>
+        </div>
+      </a>
+    }
+  </div>
+
+  @if (page() && page()!.totalPages > 1) {
+    <div class="pagination">
+      <button class="btn btn-sm" [disabled]="currentPage() === 0" (click)="goToPage(currentPage() - 1)">‹ Prec</button>
+      <span>Pagina {{ currentPage() + 1 }} di {{ page()!.totalPages }}</span>
+      <button
+        class="btn btn-sm"
+        [disabled]="currentPage() + 1 >= page()!.totalPages"
+        (click)="goToPage(currentPage() + 1)"
+      >
+        Succ ›
+      </button>
+    </div>
+  }
+}

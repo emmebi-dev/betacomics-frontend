@@ -1,0 +1,35 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.form-panel {
+  padding: 28px;
+  max-width: 720px;
+}
+
+.form-section-title {
+  font-size: 1.3rem;
+  margin: 8px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 20px;
+  margin-bottom: 20px;
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

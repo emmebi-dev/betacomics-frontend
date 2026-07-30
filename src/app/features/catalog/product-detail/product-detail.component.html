@@ -1,0 +1,80 @@
+@if (product(); as p) {
+  <a routerLink="/" class="back-link">← Torna al catalogo</a>
+
+  <div class="detail-layout">
+    <div class="detail-image panel">
+      @if (p.imageUrl) {
+        <img [src]="p.imageUrl" [alt]="p.name" />
+      } @else {
+        <div class="detail-image__placeholder display">{{ p.name.charAt(0) }}</div>
+      }
+    </div>
+
+    <div class="detail-info">
+      <h1 class="display">{{ p.name }}</h1>
+      <p class="detail-price">{{ p.price | currency: 'EUR' }}</p>
+
+      @if (p.stockQuantity === 0) {
+        <p class="stock-tag out">Esaurito</p>
+      } @else {
+        <p class="stock-tag">{{ p.stockQuantity }} pezzi disponibili</p>
+      }
+
+      @if (p.description) {
+        <p class="detail-description">{{ p.description }}</p>
+      }
+
+      <dl class="spec-list">
+        @if (comic; as c) {
+          <div><dt>Autore</dt><dd>{{ c.author }}</dd></div>
+          <div><dt>Editore</dt><dd>{{ c.publisher }}</dd></div>
+          @if (c.volumeNumber) {
+            <div><dt>Volume</dt><dd>{{ c.volumeNumber }}</dd></div>
+          }
+          <div><dt>Pagine</dt><dd>{{ c.pages }}</dd></div>
+        }
+        @if (actionFigure; as af) {
+          <div><dt>Marca</dt><dd>{{ af.brand }}</dd></div>
+          <div><dt>Materiale</dt><dd>{{ af.material }}</dd></div>
+          <div><dt>Dimensioni</dt><dd>{{ af.height }} × {{ af.width }} × {{ af.depth }} cm</dd></div>
+        }
+        @if (boardGame; as bg) {
+          <div><dt>Marca</dt><dd>{{ bg.brand }}</dd></div>
+          <div><dt>Giocatori</dt><dd>{{ bg.minPlayers }}–{{ bg.maxPlayers }}</dd></div>
+          <div><dt>Durata media</dt><dd>{{ bg.averagePlayTime }} min</dd></div>
+          <div><dt>Età consigliata</dt><dd>{{ bg.recommendedAge }}+</dd></div>
+        }
+        @if (p.weight) {
+          <div><dt>Peso</dt><dd>{{ p.weight }} kg</dd></div>
+        }
+        @if (p.releaseDate) {
+          <div><dt>Data di uscita</dt><dd>{{ p.releaseDate | date: 'longDate' }}</dd></div>
+        }
+      </dl>
+
+      @if (p.stockQuantity > 0) {
+        <div class="qty-row">
+          <span class="field-label">Quantità</span>
+          <div class="qty-stepper">
+            <button class="btn btn-sm" (click)="changeQuantity(-1)" [disabled]="quantity() <= 1">−</button>
+            <span>{{ quantity() }}</span>
+            <button class="btn btn-sm" (click)="changeQuantity(1)" [disabled]="quantity() >= p.stockQuantity">+</button>
+          </div>
+        </div>
+      }
+
+      <button
+        class="btn btn-primary btn-block detail-cta"
+        [disabled]="p.stockQuantity === 0 || addingToCart()"
+        (click)="addToCart()"
+      >
+        {{ addingToCart() ? 'Aggiunta in corso…' : p.stockQuantity === 0 ? 'Non disponibile' : 'Aggiungi al carrello' }}
+      </button>
+    </div>
+  </div>
+} @else if (loading()) {
+  <div class="spinner"></div>
+} @else {
+  <div class="alert alert-error">{{ errorMessage() || 'Prodotto non trovato.' }}</div>
+  <a routerLink="/" class="btn btn-sm">← Torna al catalogo</a>
+}

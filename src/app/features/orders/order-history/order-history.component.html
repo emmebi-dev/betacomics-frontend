@@ -1,0 +1,26 @@
+<h1 class="display">I miei ordini</h1>
+
+@if (loading()) {
+  <div class="spinner"></div>
+} @else if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+} @else if (orders().length === 0) {
+  <div class="empty-state">
+    <p class="display" style="font-size: 1.8rem;">Nessun ordine ancora</p>
+    <p>I tuoi ordini futuri compariranno qui.</p>
+    <a routerLink="/" class="btn btn-primary">Vai al catalogo</a>
+  </div>
+} @else {
+  <div class="orders-list">
+    @for (order of orders(); track order.id) {
+      <a class="order-row panel" [routerLink]="['/orders', order.id]">
+        <div>
+          <p class="order-row__id">Ordine #{{ order.id }}</p>
+          <p class="order-row__date">{{ order.orderDate | date: 'dd MMM yyyy, HH:mm' }}</p>
+        </div>
+        <span class="badge" [class]="'badge-status-' + order.status">{{ order.status }}</span>
+        <p class="order-row__total">{{ order.totalPrice | currency: 'EUR' }}</p>
+      </a>
+    }
+  </div>
+}

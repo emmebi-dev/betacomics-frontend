@@ -1,0 +1,32 @@
+.lookup-panel {
+  padding: 28px;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.lookup-form,
+.status-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.field--inline {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.order-summary {
+  padding: 14px 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-summary p {
+  margin: 0;
+}

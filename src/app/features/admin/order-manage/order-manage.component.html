@@ -1,0 +1,44 @@
+<h1 class="display">Gestione ordini</h1>
+
+<div class="alert alert-info">
+  L'API del backend non espone un elenco di tutti gli ordini: puoi cercare un ordine specifico
+  per ID e aggiornarne lo stato.
+</div>
+
+<div class="panel lookup-panel">
+  <form [formGroup]="lookupForm" (ngSubmit)="lookup()" class="lookup-form">
+    <div class="field field--inline">
+      <label for="orderId">ID ordine</label>
+      <input id="orderId" type="number" min="1" formControlName="orderId" />
+    </div>
+    <button type="submit" class="btn btn-sm" [disabled]="loading()">
+      {{ loading() ? 'Ricerca…' : 'Cerca ordine' }}
+    </button>
+  </form>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (order(); as o) {
+    <div class="order-summary">
+      <p><strong>Ordine #{{ o.id }}</strong> — {{ o.orderDate | date: 'dd MMM yyyy, HH:mm' }}</p>
+      <p>Totale: {{ o.totalPrice | currency: 'EUR' }}</p>
+      <span class="badge" [class]="'badge-status-' + o.status">{{ o.status }}</span>
+    </div>
+  }
+
+  <form [formGroup]="statusForm" (ngSubmit)="updateStatus()" class="status-form">
+    <div class="field field--inline">
+      <label for="status">Nuovo stato</label>
+      <select id="status" formControlName="status">
+        @for (s of statuses; track s) {
+          <option [value]="s">{{ s }}</option>
+        }
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm" [disabled]="updating() || !lookupForm.value.orderId">
+      {{ updating() ? 'Aggiornamento…' : 'Aggiorna stato' }}
+    </button>
+  </form>
+</div>
