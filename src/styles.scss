@@ -10,6 +10,7 @@
   --panel-blue: #21335c;
   --line: #16171d;
   --muted: #6b6558;
+  --muted-strong: #4a453a;
   --success: #2f7a4f;
   --danger: #b3261e;
 
@@ -145,7 +146,11 @@ button { font-family: var(--font-body); }
 .alert-error { background: #fbe2df; color: var(--danger); }
 .alert-info { background: #eaf1ff; color: var(--panel-blue); }
 
-.empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--muted-strong); }
+
+.empty-state p {
+  font-weight: 600;
+}
 
 .spinner {
   width: 28px;
