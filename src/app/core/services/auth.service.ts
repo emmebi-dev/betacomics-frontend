@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest, Role, User } from '../models/user.model';
+import { AuthResponse, LoginRequest, RegisterRequest, ResetPasswordRequest, Role, User } from '../models/user.model';
 
 const TOKEN_KEY = 'betacomics_token';
 const USER_KEY = 'betacomics_user';
@@ -33,6 +33,10 @@ export class AuthService {
 
   register(request: RegisterRequest): Observable<User> {
     return this.http.post<User>(`${this.baseUrl}/users/register`, request);
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/reset-password`, request);
   }
 
   logout(): void {
