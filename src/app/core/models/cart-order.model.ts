@@ -37,6 +37,8 @@ export interface OrderItem {
 export interface Order {
   id: number;
   userId: number;
+  username: string;
+  email: string;
   orderDate: string;
   totalPrice: number;
   status: OrderStatus;
