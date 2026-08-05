@@ -26,6 +26,12 @@ export const routes: Routes = [
     title: 'Betacomics — Registrati',
   },
   {
+    path: 'forgotPassword',
+    loadComponent: () =>
+      import('./features/auth/forgotPassword/forgotPassword.component').then((m) => m.ForgotPasswordComponent),
+    title: 'Betacomics — Password dimenticata',
+  },
+  {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart.component').then((m) => m.CartComponent),
     canActivate: [authGuard],

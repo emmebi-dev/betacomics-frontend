@@ -23,9 +23,15 @@ export interface UpdateProfileRequest {
   email: string;
 }
 
+export interface ResetPasswordRequest {
+  username: string;
+  email: string;
+  newPassword: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   tokenType: string;
   username: string;
-  role: string; // es. "ROLE_ADMIN" oppure "ADMIN" a seconda del GrantedAuthority
+  role: string;
 }
