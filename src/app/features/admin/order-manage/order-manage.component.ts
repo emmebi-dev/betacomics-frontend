@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { OrderService } from '../../../core/services/order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Order, OrderStatus } from '../../../core/models/cart-order.model';
@@ -34,8 +39,15 @@ export class OrderManageComponent {
   readonly orders = signal<Page<Order> | null>(null);
   readonly mode = signal<'all' | 'id' | 'user'>('all');
 
+  // Tengono traccia dei criteri con cui è stata effettivamente lanciata
+  // l'ultima ricerca, per poterli mostrare nei titoli dei risultati.
+  readonly searchedUserQuery = signal<string>('');
+  readonly searchedStatus = signal<OrderStatus | ''>('');
+
   private page = 0;
   private size = 10;
+
+  statusForms = new Map<number, FormGroup>();
 
   constructor() {
     this.loadOrders();
@@ -100,9 +112,17 @@ export class OrderManageComponent {
       });
   }
 
-  createStatusForm(currentStatus: OrderStatus) {
+  createStatusForm(currentStatus: OrderStatus): FormGroup {
     return this.fb.nonNullable.group({
       status: [currentStatus, [Validators.required]],
+    });
+  }
+
+  // Ricostruisce la mappa dei form di stato per gli ordini appena caricati.
+  private rebuildStatusForms(items: Order[]): void {
+    this.statusForms.clear();
+    items.forEach((o) => {
+      this.statusForms.set(o.id, this.createStatusForm(o.status));
     });
   }
 
@@ -110,20 +130,44 @@ export class OrderManageComponent {
     this.orderService
       .list({ page: this.page, size: this.size, sort: 'id,desc' })
       .subscribe({
-        next: (page) => this.orders.set(page),
+        next: (page) => {
+          this.rebuildStatusForms(page.content);
+          this.orders.set(page);
+        },
+        error: () => this.toast.error('Impossibile caricare gli ordini.'),
+      });
+  }
+
+  private reloadCurrentPage(): void {
+    if (this.mode() === 'user') {
+      this.searchByUser();
+    } else if (this.mode() === 'all') {
+      this.loadOrdersPreservingFilter();
+    }
+  }
+
+  private loadOrdersPreservingFilter(): void {
+    const status = this.filterForm.getRawValue().status;
+
+    this.orderService
+      .list({
+        page: this.page,
+        size: this.size,
+        sort: 'id,desc',
+        status: status || undefined,
+      })
+      .subscribe({
+        next: (page) => {
+          this.orders.set(page);
+          this.rebuildStatusForms(page.content);
+        },
         error: () => this.toast.error('Impossibile caricare gli ordini.'),
       });
   }
 
   nextPage(): void {
     this.page++;
-
-    if (this.mode() === 'user') {
-      this.searchByUser();
-    } else if (this.mode() === 'all') {
-      this.loadOrders();
-    }
-
+    this.reloadCurrentPage();
     window.scrollTo({ top: 350, behavior: 'smooth' });
   }
 
@@ -131,37 +175,30 @@ export class OrderManageComponent {
     if (this.page === 0) return;
 
     this.page--;
-
-    if (this.mode() === 'user') {
-      this.searchByUser();
-    } else if (this.mode() === 'all') {
-      this.loadOrders();
-    }
-
+    this.reloadCurrentPage();
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'auto' });
   }
 
-  updateStatusForOrder(orderId: number): void {
-    if (!orderId || this.statusForm.invalid) return;
+  updateStatusForOrder(orderId: number, form: FormGroup): void {
+    if (!orderId || form.invalid) return;
+
     this.updating.set(true);
 
-    this.orderService
-      .updateStatus(orderId, this.statusForm.getRawValue())
-      .subscribe({
-        next: (order) => {
-          this.toast.success(
-            `Stato dell'ordine #${orderId} aggiornato a ${order.status}.`,
-          );
-          this.updating.set(false);
-          this.loadOrders(); // ricarica la lista per riflettere il nuovo stato
-        },
-        error: (err) => {
-          this.updating.set(false);
-          this.toast.error(
-            extractErrorMessage(err, 'Impossibile aggiornare lo stato.'),
-          );
-        },
-      });
+    this.orderService.updateStatus(orderId, form.getRawValue()).subscribe({
+      next: (order) => {
+        this.toast.success(
+          `Stato dell'ordine #${orderId} aggiornato a ${order.status}.`,
+        );
+        this.updating.set(false);
+        this.reloadCurrentPage();
+      },
+      error: (err) => {
+        this.updating.set(false);
+        this.toast.error(
+          extractErrorMessage(err, 'Impossibile aggiornare lo stato.'),
+        );
+      },
+    });
   }
 
   userForm = this.fb.nonNullable.group({
@@ -174,24 +211,31 @@ export class OrderManageComponent {
 
   searchByUser(): void {
     const query = this.userForm.getRawValue().query;
+    if (!query) return;
 
     if (this.mode() !== 'user') {
       this.page = 0; // reset solo quando cambi modalità
     }
 
-    if (!query) return;
     this.mode.set('user');
     this.lookupForm.reset({ orderId: null });
+
+    const status = this.filterForm.getRawValue().status;
+    this.searchedUserQuery.set(query);
+    this.searchedStatus.set(status);
 
     this.orderService
       .listByUser({
         query,
         page: this.page,
         size: this.size,
-        status: this.filterForm.getRawValue().status || undefined,
+        status: status || undefined,
       })
       .subscribe({
-        next: (page) => this.orders.set(page),
+        next: (page) => {
+          this.orders.set(page);
+          this.rebuildStatusForms(page.content);
+        },
         error: () => this.toast.error('Errore nella ricerca per utente.'),
       });
   }
@@ -213,19 +257,8 @@ export class OrderManageComponent {
     this.page = 0;
     this.lookupForm.reset({ orderId: null });
     this.userForm.reset({ query: '' });
+    this.searchedStatus.set(this.filterForm.getRawValue().status);
 
-    const status = this.filterForm.getRawValue().status;
-
-    this.orderService
-      .list({
-        page: this.page,
-        size: this.size,
-        sort: 'id,desc',
-        status: status || undefined,
-      })
-      .subscribe({
-        next: (page) => this.orders.set(page),
-        error: () => this.toast.error('Impossibile caricare gli ordini.'),
-      });
+    this.loadOrdersPreservingFilter();
   }
 }
