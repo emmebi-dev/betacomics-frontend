@@ -56,7 +56,7 @@
 <!-- Risultato ricerca per ID -->
 @if (mode() === 'id' && order(); as o) {
 <div class="orders-panel">
-  <h2>Ordine trovato</h2>
+  <h2>Ordine trovato #{{ o.id }}</h2>
 
   <div class="orders">
     <div class="order-item lookup-panel panel">
@@ -88,7 +88,12 @@
 <!-- Lista completa ordini -->
 @if (mode() === 'all' && orders(); as page) {
 <div class="orders-panel">
-  <h2>Tutti gli ordini</h2>
+  <h2>
+    Tutti gli ordini
+    @if (searchedStatus()) {
+    con status {{ searchedStatus() }}
+    }
+  </h2>
 
   <div class="orders">
     @for (o of page.content; track o.id) {
@@ -99,7 +104,8 @@
       <p>Totale: {{ o.totalPrice | currency:'EUR' }}</p>
       <span class="badge" [class]="'badge-status-' + o.status">{{ o.status }}</span>
 
-      <form [formGroup]="createStatusForm(o.status)" (ngSubmit)="updateStatusForOrder(o.id)" class="status-form">
+      <form [formGroup]="statusForms.get(o.id)!" (ngSubmit)="updateStatusForOrder(o.id, statusForms.get(o.id)!)"
+        class="status-form">
         <div class="field field--inline">
           <label for="status-{{ o.id }}">Nuovo stato</label>
           <select id="status-{{ o.id }}" formControlName="status">
@@ -108,6 +114,7 @@
             }
           </select>
         </div>
+
         <button type="submit" class="btn btn-primary btn-sm" [disabled]="updating()">
           {{ updating() ? 'Aggiornamento…' : 'Aggiorna stato' }}
         </button>
@@ -121,7 +128,12 @@
 <!-- Risultati ricerca per utente -->
 @if (mode() === 'user' && orders(); as page) {
 <div class="orders-panel">
-  <h2>Ordini dell'utente</h2>
+  <h2>
+    Ordini dell'utente {{ searchedUserQuery() }}
+    @if (searchedStatus()) {
+    con status {{ searchedStatus() }}
+    }
+  </h2>
 
   <div class="orders">
     @for (o of page.content; track o.id) {
@@ -133,7 +145,8 @@
 
       <span class="badge" [class]="'badge-status-' + o.status">{{ o.status }}</span>
 
-      <form [formGroup]="createStatusForm(o.status)" (ngSubmit)="updateStatusForOrder(o.id)" class="status-form">
+      <form [formGroup]="statusForms.get(o.id)!" (ngSubmit)="updateStatusForOrder(o.id, statusForms.get(o.id)!)"
+        class="status-form">
         <div class="field field--inline">
           <label for="status-{{ o.id }}">Nuovo stato</label>
           <select id="status-{{ o.id }}" formControlName="status">
@@ -142,6 +155,7 @@
             }
           </select>
         </div>
+
         <button type="submit" class="btn btn-primary btn-sm" [disabled]="updating()">
           {{ updating() ? 'Aggiornamento…' : 'Aggiorna stato' }}
         </button>
@@ -154,19 +168,18 @@
 
 <!-- Tasti pagina successiva e precedente -->
 @if (orders(); as page) {
-  <div class="pagination">
+<div class="pagination">
 
-    @if (page.number > 0) {
-      <button class="btn btn-sm" (click)="prevPage()">
-        Precedente
-      </button>
+  @if (page.number > 0) {
+  <button class="btn btn-sm" (click)="prevPage()">
+    Precedente
+  </button>
+  }
+
+  @if (page.number + 1 < page.totalPages) { <button class="btn btn-sm" (click)="nextPage()">
+    Successiva
+    </button>
     }
 
-    @if (page.number + 1 < page.totalPages) {
-      <button class="btn btn-sm" (click)="nextPage()">
-        Successiva
-      </button>
-    }
-
-  </div>
+</div>
 }
